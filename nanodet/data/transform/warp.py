@@ -284,6 +284,8 @@ class ShapeTransform:
     def __init__(
         self,
         keep_ratio: bool,
+        s2d_scale: int = 1,
+        gt_scale: int = 1,
         divisible: int = 0,
         perspective: float = 0.0,
         scale: Tuple[int, int] = (1, 1),
@@ -295,6 +297,8 @@ class ShapeTransform:
         **kwargs
     ):
         self.keep_ratio = keep_ratio
+        self.s2d_scale = s2d_scale
+        self.gt_scale = gt_scale
         self.divisible = divisible
         self.perspective = perspective
         self.scale_ratio = scale
@@ -340,9 +344,20 @@ class ShapeTransform:
                 (width, height), dst_shape, self.divisible
             )
 
-        ResizeM = get_resize_matrix((width, height), dst_shape, self.keep_ratio)
-        M = ResizeM @ M
-        img = cv2.warpPerspective(raw_img, M, dsize=tuple(dst_shape))
+        if self.s2d_scale == self.gt_scale:
+            dst_shape = tuple([int(i * self.s2d_scale) for i in dst_shape])
+            ResizeM = get_resize_matrix((width, height), dst_shape, self.keep_ratio)
+            M = ResizeM @ M
+            img = cv2.warpPerspective(raw_img, M, dsize=tuple(dst_shape))
+        else:
+            img_dst_shape = tuple([int(i * self.s2d_scale) for i in dst_shape])
+            ResizeM = get_resize_matrix((width, height), img_dst_shape, self.keep_ratio)
+            M_img = ResizeM @ M
+            img = cv2.warpPerspective(raw_img, M_img, dsize=tuple(dst_shape))
+            dst_shape = tuple([int(i * self.gt_scale) for i in dst_shape])
+            ResizeM = get_resize_matrix((width, height), dst_shape, self.keep_ratio)
+            M = ResizeM @ M
+
         meta_data["img"] = img
         meta_data["warp_matrix"] = M
         if "gt_bboxes" in meta_data:

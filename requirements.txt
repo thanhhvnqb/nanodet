@@ -1,7 +1,7 @@
 Cython
 imagesize
 matplotlib
-numpy
+numpy<2.0.0
 omegaconf>=2.0.1
 onnx
 onnx-simplifier

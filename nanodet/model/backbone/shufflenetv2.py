@@ -104,12 +104,13 @@ class ShuffleV2Block(nn.Module):
 class ShuffleNetV2(nn.Module):
     def __init__(
         self,
+        in_channels=3,
         model_size="1.5x",
         out_stages=(2, 3, 4),
         with_last_conv=False,
         kernal_size=3,
         activation="ReLU",
-        pretrain=True,
+        pretrain=False,
     ):
         super(ShuffleNetV2, self).__init__()
         # out_stages can only be a subset of (2, 3, 4)
@@ -135,7 +136,7 @@ class ShuffleNetV2(nn.Module):
             raise NotImplementedError
 
         # building first layer
-        input_channels = 3
+        input_channels = in_channels
         output_channels = self._stage_out_channels[0]
         self.conv1 = nn.Sequential(
             nn.Conv2d(input_channels, output_channels, 3, 2, 1, bias=False),

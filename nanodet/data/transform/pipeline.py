@@ -20,6 +20,7 @@ from torch.utils.data import Dataset
 
 from .color import color_aug_and_norm
 from .warp import ShapeTransform, warp_and_resize
+from .s2d2s import space_to_depth_np
 
 
 class LegacyPipeline:
@@ -52,8 +53,14 @@ class Pipeline:
     def __init__(self, cfg: Dict, keep_ratio: bool):
         self.shape_transform = ShapeTransform(keep_ratio, **cfg)
         self.color = functools.partial(color_aug_and_norm, kwargs=cfg)
+        if "s2d_scale" in cfg:
+            self.s2d = functools.partial(space_to_depth_np, block_size=cfg["s2d_scale"])
+        else:
+            self.s2d = None
 
     def __call__(self, dataset: Dataset, meta: Dict, dst_shape: Tuple[int, int]):
         meta = self.shape_transform(meta, dst_shape=dst_shape)
         meta = self.color(meta=meta)
+        if self.s2d is not None:
+            meta["img"] = self.s2d(meta["img"])
         return meta
