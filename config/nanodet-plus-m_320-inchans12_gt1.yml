@@ -5,7 +5,7 @@
 #           AP_small = 0.083
 #               AP_m = 0.278
 #               AP_l = 0.451
-save_dir: workspace/nanodet-plus-m_320
+save_dir: workspace/nanodet-plus-m_320-inchans12_gt1
 model:
   weight_averager:
     name: ExpMovingAverager
@@ -15,6 +15,7 @@ model:
     detach_epoch: 10
     backbone:
       name: ShuffleNetV2
+      in_channels: 12
       model_size: 1.0x
       out_stages: [2,3,4]
       activation: LeakyReLU
@@ -79,6 +80,8 @@ data:
       contrast: [0.6, 1.4]
       saturation: [0.5, 1.2]
       normalize: [[103.53, 116.28, 123.675], [57.375, 57.12, 58.395]]
+      s2d_scale: 2
+      gt_scale: 1
   val:
     name: CocoDataset
     img_path: coco/val2017
@@ -87,14 +90,16 @@ data:
     keep_ratio: False
     pipeline:
       normalize: [[103.53, 116.28, 123.675], [57.375, 57.12, 58.395]]
+      s2d_scale: 2
+      gt_scale: 1
 device:
   gpu_ids: [0] # Set like [0, 1, 2, 3] if you have multi-GPUs
-  workers_per_gpu: 10
+  workers_per_gpu: 5
   batchsize_per_gpu: 128
   precision: 32 # set to 16 to use AMP training
 schedule:
-  resume: 
- # load_model:
+  # resume: 
+  # load_model:
   optimizer:
     name: AdamW
     lr: 0.001

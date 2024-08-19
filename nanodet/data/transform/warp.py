@@ -353,7 +353,7 @@ class ShapeTransform:
             img_dst_shape = tuple([int(i * self.s2d_scale) for i in dst_shape])
             ResizeM = get_resize_matrix((width, height), img_dst_shape, self.keep_ratio)
             M_img = ResizeM @ M
-            img = cv2.warpPerspective(raw_img, M_img, dsize=tuple(dst_shape))
+            img = cv2.warpPerspective(raw_img, M_img, dsize=tuple(img_dst_shape))
             dst_shape = tuple([int(i * self.gt_scale) for i in dst_shape])
             ResizeM = get_resize_matrix((width, height), dst_shape, self.keep_ratio)
             M = ResizeM @ M
